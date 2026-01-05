@@ -1,26 +1,36 @@
-"use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { auth } from "@/auth";
+import { setActiveOrganization } from "@/app/actions/organizationActions";
+import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { card, pageShell } from "../ui/layoutStyles";
+import SettingsNav from "./SettingsNav";
 
-const navLinks = [
-  { href: "/settings", label: "Overview" },
-  { href: "/settings/compliance", label: "Compliance" },
-  { href: "/settings/security", label: "Security" },
-  { href: "/settings/sso", label: "Single Sign-On" },
-];
-
-export default function SettingsLayout({
+export default async function SettingsLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
+  const session = await auth();
+  if (!session?.user?.id) {
+    redirect("/auth/signin");
+  }
 
-  const isActive = (href: string) => {
-    if (href === "/settings") return pathname === "/settings";
-    return pathname.startsWith(href);
-  };
+  const memberships = await prisma.orgMember.findMany({
+    where: { userId: session.user.id },
+    include: { organization: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  if (memberships.length === 0) {
+    redirect("/onboarding");
+  }
+
+  const cookieStore = await cookies();
+  const activeOrgId = cookieStore.get("active_org")?.value ?? "";
+  const activeMembership = memberships.find(
+    (membership) => membership.organizationId === activeOrgId,
+  );
 
   return (
     <main style={pageShell}>
@@ -34,54 +44,47 @@ export default function SettingsLayout({
         <p style={{ color: "#334155", maxWidth: 640 }}>
           Configure policies, access, and authentication from a single place.
         </p>
+        <div style={{ marginTop: 16, display: "grid", gap: 8 }}>
+          <p style={{ margin: 0, fontSize: 12, textTransform: "uppercase", letterSpacing: 0.6 }}>
+            Active organization
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+            <span style={{ fontWeight: 600 }}>
+              {activeMembership?.organization.name ?? "Select an organization"}
+            </span>
+            {memberships.map((membership) => (
+              <form key={membership.organizationId} action={setActiveOrganization}>
+                <input type="hidden" name="orgId" value={membership.organizationId} />
+                <button
+                  type="submit"
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    background:
+                      activeOrgId === membership.organizationId ? "#0f172a" : "#f1f5f9",
+                    color: activeOrgId === membership.organizationId ? "#fff" : "#0f172a",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {membership.organization.name}
+                </button>
+              </form>
+            ))}
+          </div>
+        </div>
       </header>
 
       <div className="settings-layout-grid" style={{ display: "grid", gap: 24 }}>
         <nav style={{ ...card, padding: 16 }}>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  className="settings-nav-link"
-                  href={link.href}
-                  style={{
-                    display: "block",
-                    padding: "10px 12px",
-                    borderRadius: 8,
-                    textDecoration: "none",
-                    color: isActive(link.href) ? "#0f172a" : "#0f172a",
-                    background: isActive(link.href) ? "#e2e8f0" : "#f8fafc",
-                    border: isActive(link.href) ? "1px solid #cbd5e1" : "1px solid #e2e8f0",
-                    fontWeight: isActive(link.href) ? 700 : 500,
-                  }}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <SettingsNav />
         </nav>
 
         <section style={{ ...card, padding: 20 }}>
           {children}
         </section>
       </div>
-      <style jsx>{`
-        .settings-layout-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .settings-nav-link:hover {
-          background: #e2e8f0;
-          border-color: #cbd5e1;
-        }
-
-        @media (min-width: 900px) {
-          .settings-layout-grid {
-            grid-template-columns: 220px 1fr;
-          }
-        }
-      `}</style>
     </main>
   );
 }
