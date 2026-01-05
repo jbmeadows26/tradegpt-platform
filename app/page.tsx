@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { card, dashedPanel, pageShell } from "./ui/layoutStyles";
 
 const links = [
   { href: "/settings", label: "Settings overview" },
@@ -7,27 +8,16 @@ const links = [
   { href: "/settings/sso", label: "Single Sign-On" },
 ];
 
+const topNavLinks = [
+  { href: "/settings", label: "Settings", variant: "primary" as const },
+  { href: "https://docs.example.com", label: "Docs", variant: "ghost" as const },
+  { href: "https://status.example.com", label: "Status", variant: "ghost" as const },
+];
+
 export default function Home() {
   return (
-    <main
-      style={{
-        padding: 24,
-        fontFamily: "system-ui",
-        minHeight: "100vh",
-        background: "#f7f9fb",
-        color: "#0f172a",
-      }}
-    >
-      <section
-        style={{
-          background: "#fff",
-          border: "1px solid #e2e8f0",
-          borderRadius: 12,
-          padding: 20,
-          boxShadow: "0 1px 2px rgba(15, 23, 42, 0.06)",
-        maxWidth: 640,
-      }}
-    >
+    <main style={pageShell}>
+      <section style={{ ...card, maxWidth: 820 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <p style={{ textTransform: "uppercase", letterSpacing: 0.6, fontSize: 12, margin: 0 }}>
@@ -35,36 +25,32 @@ export default function Home() {
             </p>
             <h1 style={{ margin: "4px 0 8px" }}>Platform ✅</h1>
           </div>
-          <nav style={{ display: "flex", gap: 8 }}>
-            <Link
-              href="/settings"
-              style={{
-                padding: "8px 12px",
-                borderRadius: 10,
-                textDecoration: "none",
-                background: "#0f172a",
-                color: "#fff",
-                fontWeight: 600,
-                boxShadow: "0 1px 2px rgba(15,23,42,0.12)",
-              }}
-            >
-              Settings
-            </Link>
+          <nav style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {topNavLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 10,
+                  textDecoration: "none",
+                  background: link.variant === "primary" ? "#0f172a" : "#e2e8f0",
+                  color: link.variant === "primary" ? "#fff" : "#0f172a",
+                  fontWeight: 600,
+                  boxShadow:
+                    link.variant === "primary" ? "0 1px 2px rgba(15,23,42,0.12)" : "none",
+                  border: link.variant === "primary" ? "none" : "1px solid #cbd5e1",
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
         </div>
         <p style={{ margin: "0 0 16px", color: "#334155" }}>
           If you can see this, the server is running and your phone can reach it.
         </p>
-        <div
-          style={{
-            display: "grid",
-            gap: 10,
-            padding: 12,
-            border: "1px dashed #cbd5e1",
-            borderRadius: 10,
-            background: "#f8fafc",
-          }}
-        >
+        <div style={dashedPanel}>
           {links.map((link) => (
             <Link
               key={link.href}
