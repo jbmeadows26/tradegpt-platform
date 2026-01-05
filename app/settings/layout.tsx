@@ -1,4 +1,6 @@
+"use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/settings", label: "Overview" },
@@ -12,6 +14,13 @@ export default function SettingsLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === "/settings") return pathname === "/settings";
+    return pathname.startsWith(href);
+  };
+
   return (
     <main
       style={{
@@ -54,9 +63,10 @@ export default function SettingsLayout({
                     padding: "10px 12px",
                     borderRadius: 8,
                     textDecoration: "none",
-                    color: "#0f172a",
-                    background: "#f8fafc",
-                    border: "1px solid #e2e8f0",
+                    color: isActive(link.href) ? "#0f172a" : "#0f172a",
+                    background: isActive(link.href) ? "#e2e8f0" : "#f8fafc",
+                    border: isActive(link.href) ? "1px solid #cbd5e1" : "1px solid #e2e8f0",
+                    fontWeight: isActive(link.href) ? 700 : 500,
                   }}
                 >
                   {link.label}
