@@ -16,11 +16,12 @@ export default function SignInForm() {
     const res = await signIn("email", {
       email,
       callbackUrl: "/onboarding",
-      redirect: true,
+      redirect: false,
     });
 
     // Usually redirect happens before this returns.
     if (res?.error) setError(res.error);
+    if (res?.url) window.location.href = res.url;
     setLoading(false);
   }
 
