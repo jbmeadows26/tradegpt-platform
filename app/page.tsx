@@ -9,9 +9,19 @@ const links = [
 ];
 
 const topNavLinks = [
-  { href: "/settings", label: "Settings", variant: "primary" as const },
-  { href: "https://docs.example.com", label: "Docs", variant: "ghost" as const },
-  { href: "https://status.example.com", label: "Status", variant: "ghost" as const },
+  { href: "/settings", label: "Settings", variant: "primary" as const, external: false },
+  {
+    href: "https://docs.placeholder.tradegpt",
+    label: "Docs",
+    variant: "ghost" as const,
+    external: true,
+  },
+  {
+    href: "https://status.placeholder.tradegpt",
+    label: "Status",
+    variant: "ghost" as const,
+    external: true,
+  },
 ];
 
 export default function Home() {
@@ -30,6 +40,8 @@ export default function Home() {
               <Link
                 key={link.href}
                 href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noreferrer" : undefined}
                 style={{
                   padding: "8px 12px",
                   borderRadius: 10,
