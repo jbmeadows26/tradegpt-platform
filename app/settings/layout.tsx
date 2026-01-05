@@ -43,7 +43,7 @@ export default function SettingsLayout({
         </p>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 24 }}>
+      <div className="settings-layout-grid" style={{ display: "grid", gap: 24 }}>
         <nav
           style={{
             background: "#fff",
@@ -57,6 +57,7 @@ export default function SettingsLayout({
             {navLinks.map((link) => (
               <li key={link.href}>
                 <Link
+                  className="settings-nav-link"
                   href={link.href}
                   style={{
                     display: "block",
@@ -88,6 +89,22 @@ export default function SettingsLayout({
           {children}
         </section>
       </div>
+      <style jsx>{`
+        .settings-layout-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .settings-nav-link:hover {
+          background: #e2e8f0;
+          border-color: #cbd5e1;
+        }
+
+        @media (min-width: 900px) {
+          .settings-layout-grid {
+            grid-template-columns: 220px 1fr;
+          }
+        }
+      `}</style>
     </main>
   );
 }
