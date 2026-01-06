@@ -4,7 +4,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
 const emailFrom = process.env.EMAIL_FROM ?? "no-reply@localhost";
-const emailServer = process.env.EMAIL_SERVER ?? "";
+const emailServer = process.env.EMAIL_SERVER ?? "smtp://localhost:1025";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),

@@ -16,7 +16,7 @@ export default function SignInForm() {
     setSent(false);
 
     try {
-      const res = await signIn("email", {
+      const res = await signIn("nodemailer", {
         email,
         callbackUrl: "/onboarding",
         redirect: false,
