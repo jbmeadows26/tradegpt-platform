@@ -1,19 +1,19 @@
 import NextAuth from "next-auth";
-import Resend from "next-auth/providers/resend";
+import Nodemailer from "next-auth/providers/nodemailer";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
 const emailFrom = process.env.EMAIL_FROM ?? "no-reply@localhost";
-const resendApiKey = process.env.RESEND_API_KEY ?? "";
+const emailServer = process.env.EMAIL_SERVER ?? "";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   trustHost: true,
   providers: [
-    Resend({
+    Nodemailer({
+      server: emailServer,
       from: emailFrom,
-      apiKey: resendApiKey,
     }),
   ],
   session: {
